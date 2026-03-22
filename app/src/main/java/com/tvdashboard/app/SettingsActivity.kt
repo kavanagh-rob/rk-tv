@@ -1,8 +1,6 @@
 package com.tvdashboard.app
 
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
@@ -10,7 +8,6 @@ import androidx.preference.PreferenceManager
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var urlInput: EditText
-    private lateinit var fullscreenCheck: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,58 +16,34 @@ class SettingsActivity : AppCompatActivity() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
         urlInput = findViewById(R.id.urlInput)
-        fullscreenCheck = findViewById(R.id.fullscreenCheck)
+        urlInput.setText(prefs.getString(MainActivity.PREF_URL, "") ?: "")
 
-        val currentUrl = prefs.getString(MainActivity.PREF_URL, MainActivity.DEFAULT_URL) ?: ""
-        urlInput.setText(currentUrl)
-        fullscreenCheck.isChecked = prefs.getBoolean(MainActivity.PREF_FULLSCREEN, true)
-
-        // Preset buttons
-        findViewById<Button>(R.id.btnPresetLocal).setOnClickListener {
-            urlInput.setText("http://192.168.1.100:8080/tv-dashboard.html")
-            urlInput.requestFocus()
-        }
-
-        findViewById<Button>(R.id.btnPresetGithub).setOnClickListener {
-            urlInput.setText("https://yourusername.github.io/tv-dashboard/tv-dashboard.html")
-            urlInput.requestFocus()
-        }
-
-        findViewById<Button>(R.id.btnPresetBuiltin).setOnClickListener {
-            urlInput.setText(MainActivity.DEFAULT_URL)
-        }
-
-        // Save button
         findViewById<Button>(R.id.btnSave).setOnClickListener {
-            saveAndClose()
+            val url = urlInput.text.toString().trim()
+            if (url.isNotEmpty()) {
+                prefs.edit().putString(MainActivity.PREF_URL, url).apply()
+                Toast.makeText(this, "URL updated!", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
+                finish()
+            } else {
+                Toast.makeText(this, "Please enter a URL", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Cancel button
         findViewById<Button>(R.id.btnCancel).setOnClickListener {
             finish()
         }
 
-        // Focus the URL input initially
-        urlInput.requestFocus()
-    }
-
-    private fun saveAndClose() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        prefs.edit()
-            .putString(MainActivity.PREF_URL, urlInput.text.toString().trim())
-            .putBoolean(MainActivity.PREF_FULLSCREEN, fullscreenCheck.isChecked)
-            .apply()
-
-        Toast.makeText(this, "Settings saved!", Toast.LENGTH_SHORT).show()
-        setResult(RESULT_OK)
-        finish()
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        findViewById<Button>(R.id.btnReset).setOnClickListener {
+            prefs.edit()
+                .remove(MainActivity.PREF_URL)
+                .putBoolean(MainActivity.PREF_SETUP_DONE, false)
+                .apply()
+            Toast.makeText(this, "Reset! Next launch will show setup.", Toast.LENGTH_SHORT).show()
+            setResult(RESULT_OK)
             finish()
-            return true
         }
-        return super.onKeyDown(keyCode, event)
+
+        urlInput.requestFocus()
     }
 }
