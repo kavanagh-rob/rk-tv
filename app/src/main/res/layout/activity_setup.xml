@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0a0a0f"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="48dp">
+
+    <!-- Logo / Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⬡ TV Dashboard"
+        android:textColor="#e8e8f0"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter the URL of your dashboard to get started"
+        android:textColor="#6e6e82"
+        android:textSize="18sp"
+        android:layout_marginBottom="40dp" />
+
+    <!-- URL Input -->
+    <EditText
+        android:id="@+id/setupUrlInput"
+        android:layout_width="600dp"
+        android:layout_height="64dp"
+        android:background="@drawable/input_background"
+        android:textColor="#e8e8f0"
+        android:textColorHint="#4a4a5a"
+        android:textSize="20sp"
+        android:hint="https://your-dashboard-url.com"
+        android:inputType="textUri"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Preset row -->
+    <LinearLayout
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="32dp">
+
+        <Button
+            android:id="@+id/setupBtnLocal"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="52dp"
+            android:text="🏠 LAN Server"
+            android:textSize="14sp"
+            android:textColor="#e8e8f0"
+            android:background="@drawable/btn_preset"
+            android:layout_marginEnd="8dp"
+            android:focusable="true" />
+
+        <Button
+            android:id="@+id/setupBtnGithub"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="52dp"
+            android:text="🐙 GitHub Pages"
+            android:textSize="14sp"
+            android:textColor="#e8e8f0"
+            android:background="@drawable/btn_preset"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <!-- Launch button -->
+    <Button
+        android:id="@+id/setupBtnLaunch"
+        android:layout_width="600dp"
+        android:layout_height="64dp"
+        android:text="Launch Dashboard →"
+        android:textSize="20sp"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        android:background="@drawable/btn_save"
+        android:focusable="true" />
+
+    <!-- Help -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You can change this later by pressing MENU or S"
+        android:textColor="#4a4a5a"
+        android:textSize="14sp"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>

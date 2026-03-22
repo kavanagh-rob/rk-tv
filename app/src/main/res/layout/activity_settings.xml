@@ -1,169 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0a0a0f"
+    android:gravity="center"
+    android:orientation="vertical"
     android:padding="48dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:maxWidth="800dp">
+        android:text="⚙ Settings"
+        android:textColor="#e8e8f0"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp" />
 
-        <!-- Title -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⚙ Dashboard Settings"
-            android:textColor="#e8e8f0"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="40dp" />
+    <!-- Current URL label -->
+    <TextView
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:text="Dashboard URL"
+        android:textColor="#6e6e82"
+        android:textSize="14sp"
+        android:textAllCaps="true"
+        android:letterSpacing="0.1"
+        android:layout_marginBottom="8dp" />
 
-        <!-- URL Section -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Dashboard URL"
-            android:textColor="#6e6e82"
-            android:textSize="14sp"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginBottom="8dp" />
+    <EditText
+        android:id="@+id/urlInput"
+        android:layout_width="600dp"
+        android:layout_height="60dp"
+        android:background="@drawable/input_background"
+        android:textColor="#e8e8f0"
+        android:textColorHint="#4a4a5a"
+        android:textSize="18sp"
+        android:hint="Enter URL"
+        android:inputType="textUri"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_marginBottom="24dp" />
 
-        <EditText
-            android:id="@+id/urlInput"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@drawable/input_background"
-            android:textColor="#e8e8f0"
-            android:textColorHint="#4a4a5a"
-            android:textSize="18sp"
-            android:hint="Enter URL (http://... or file:///...)"
-            android:inputType="textUri"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:singleLine="true"
-            android:imeOptions="actionDone"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:nextFocusDown="@id/btnPresetLocal" />
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
 
-        <!-- Preset Buttons -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Quick Presets"
-            android:textColor="#6e6e82"
-            android:textSize="14sp"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/btnPresetLocal"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="56dp"
-                android:text="🏠 LAN Server"
-                android:textSize="15sp"
-                android:textColor="#e8e8f0"
-                android:background="@drawable/btn_preset"
-                android:layout_marginEnd="8dp"
-                android:focusable="true"
-                android:nextFocusDown="@id/btnPresetGithub" />
-
-            <Button
-                android:id="@+id/btnPresetGithub"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="56dp"
-                android:text="🐙 GitHub Pages"
-                android:textSize="15sp"
-                android:textColor="#e8e8f0"
-                android:background="@drawable/btn_preset"
-                android:layout_marginEnd="8dp"
-                android:focusable="true"
-                android:nextFocusDown="@id/btnPresetBuiltin" />
-
-            <Button
-                android:id="@+id/btnPresetBuiltin"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="56dp"
-                android:text="📦 Built-in"
-                android:textSize="15sp"
-                android:textColor="#e8e8f0"
-                android:background="@drawable/btn_preset"
-                android:focusable="true"
-                android:nextFocusDown="@id/fullscreenCheck" />
-        </LinearLayout>
-
-        <!-- Options -->
-        <CheckBox
-            android:id="@+id/fullscreenCheck"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="56dp"
-            android:text="Fullscreen (hide system bars)"
-            android:textColor="#e8e8f0"
-            android:textSize="18sp"
-            android:buttonTint="#4d8eff"
-            android:layout_marginTop="24dp"
-            android:paddingStart="12dp"
-            android:focusable="true"
-            android:nextFocusDown="@id/btnSave" />
+            android:text="Cancel"
+            android:textSize="17sp"
+            android:textColor="#6e6e82"
+            android:background="@drawable/btn_cancel"
+            android:layout_marginEnd="8dp"
+            android:focusable="true" />
 
-        <!-- Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="40dp">
-
-            <Button
-                android:id="@+id/btnCancel"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="60dp"
-                android:text="Cancel"
-                android:textSize="18sp"
-                android:textColor="#6e6e82"
-                android:background="@drawable/btn_cancel"
-                android:layout_marginEnd="12dp"
-                android:focusable="true" />
-
-            <Button
-                android:id="@+id/btnSave"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="60dp"
-                android:text="✓ Save &amp; Load"
-                android:textSize="18sp"
-                android:textColor="#ffffff"
-                android:background="@drawable/btn_save"
-                android:focusable="true" />
-        </LinearLayout>
-
-        <!-- Help text -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Press MENU or S key to open settings from dashboard.\nSupports: http://, https://, file:///android_asset/, file:///sdcard/"
-            android:textColor="#4a4a5a"
-            android:textSize="14sp"
-            android:lineSpacingExtra="4dp"
-            android:layout_marginTop="24dp"
-            android:gravity="center" />
-
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="56dp"
+            android:text="✓ Save"
+            android:textSize="17sp"
+            android:textColor="#ffffff"
+            android:background="@drawable/btn_save"
+            android:focusable="true" />
     </LinearLayout>
-</ScrollView>
+
+    <Button
+        android:id="@+id/btnReset"
+        android:layout_width="600dp"
+        android:layout_height="48dp"
+        android:text="Reset App (show setup on next launch)"
+        android:textSize="14sp"
+        android:textColor="#f87171"
+        android:background="@drawable/btn_cancel"
+        android:focusable="true"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Press BACK to return to dashboard"
+        android:textColor="#4a4a5a"
+        android:textSize="13sp"
+        android:layout_marginTop="20dp" />
+
+</LinearLayout>

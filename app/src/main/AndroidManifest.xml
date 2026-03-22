@@ -42,5 +42,11 @@
             android:exported="false"
             android:theme="@style/Theme.TVDashboard.Settings" />
 
+        <!-- First-launch Setup Activity -->
+        <activity
+            android:name=".SetupActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TVDashboard.Settings" />
+
     </application>
 </manifest>
