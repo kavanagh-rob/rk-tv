@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, initial-scale=1.0">
+<title>TV Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface-hover: #1c1c28;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --text-dim: #6e6e82;
+    --accent-blue: #4d8eff;
+    --accent-green: #34d399;
+    --accent-orange: #fb923c;
+    --accent-pink: #f472b6;
+    --accent-purple: #a78bfa;
+    --accent-red: #f87171;
+    --accent-cyan: #22d3ee;
+    --accent-yellow: #fbbf24;
+    --focus-glow: rgba(77, 142, 255, 0.5);
+    --radius: 16px;
+    --tile-gap: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    padding: 28px 40px 20px;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 20%, rgba(77,142,255,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 85% 80%, rgba(164,139,250,0.05) 0%, transparent 70%),
+      var(--bg);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+  .header-left { display: flex; align-items: baseline; gap: 16px; }
+  .logo {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+  .weather {
+    font-size: 16px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── TAB BAR ── */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+    flex-shrink: 0;
+  }
+  .tab {
+    padding: 10px 28px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 2px solid transparent;
+    color: var(--text-dim);
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.3px;
+  }
+  .tab:focus, .tab:hover {
+    border-color: var(--accent-blue);
+    color: var(--text);
+    background: var(--surface-hover);
+    box-shadow: 0 0 20px var(--focus-glow), inset 0 0 20px rgba(77,142,255,0.05);
+    transform: scale(1.04);
+  }
+  .tab.active {
+    background: linear-gradient(135deg, rgba(77,142,255,0.15), rgba(164,139,250,0.1));
+    color: var(--text);
+    border-color: var(--accent-blue);
+  }
+  .tab-icon { margin-right: 8px; }
+
+  /* ── PANELS ── */
+  .panel { display: none; flex: 1; min-height: 0; }
+  .panel.active { display: flex; flex-direction: column; }
+
+  /* ── TILE GRID ── */
+  .tile-grid {
+    display: grid;
+    gap: var(--tile-gap);
+    flex: 1;
+  }
+
+  /* Links grid: 4 columns */
+  .links-grid { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); }
+
+  /* Media grid: custom layout */
+  .media-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  /* Smart home grid */
+  .home-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  /* ── TILE ── */
+  .tile {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: var(--radius);
+  }
+  .tile:focus, .tile:hover {
+    border-color: var(--tile-accent, var(--accent-blue));
+    transform: scale(1.03);
+    z-index: 2;
+    box-shadow:
+      0 0 30px rgba(77,142,255,0.25),
+      0 8px 32px rgba(0,0,0,0.4);
+  }
+  .tile:focus::before, .tile:hover::before {
+    opacity: 1;
+    background: radial-gradient(ellipse at 30% 20%, var(--tile-glow, rgba(77,142,255,0.08)), transparent 70%);
+  }
+
+  .tile-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
+  .tile-title {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    margin-bottom: 4px;
+  }
+  .tile-subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+  .tile-wide { grid-column: span 2; }
+  .tile-tall { grid-row: span 2; }
+
+  /* ── SMART HOME SPECIFIC ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+  .toggle-pill {
+    width: 52px;
+    height: 28px;
+    border-radius: 14px;
+    background: #2a2a3a;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .toggle-pill.on { background: var(--accent-green); }
+  .toggle-pill::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.3s;
+  }
+  .toggle-pill.on::after { transform: translateX(24px); }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── MEDIA CONTROLS ── */
+  .now-playing {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: auto;
+  }
+  .album-art {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+  }
+  .track-info { flex: 1; }
+  .track-name { font-size: 16px; font-weight: 600; }
+  .track-artist { font-size: 13px; color: var(--text-dim); }
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    width: 35%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+    border-radius: 2px;
+  }
+
+  /* ── SLIDER ── */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+  }
+  .slider-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    position: relative;
+  }
+  .slider-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent-yellow);
+  }
+  .slider-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--text-dim);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  /* ── SECTION LABEL INSIDE TILES ── */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  /* ── FOOTER HINT ── */
+  .footer {
+    text-align: center;
+    padding-top: 12px;
+    flex-shrink: 0;
+  }
+  .footer span {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+  .key-hint {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    margin: 0 3px;
+    font-size: 11px;
+    background: var(--surface);
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">⬡ DASHBOARD</div>
+    <div class="clock" id="clock">00:00</div>
+  </div>
+  <div class="weather" id="weather">☁ 22°C</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="tabBar">
+  <button class="tab active" tabindex="1" data-panel="links" autofocus>
+    <span class="tab-icon">🔗</span>Links
+  </button>
+  <button class="tab" tabindex="2" data-panel="media">
+    <span class="tab-icon">🎬</span>Media
+  </button>
+  <button class="tab" tabindex="3" data-panel="home">
+    <span class="tab-icon">🏠</span>Smart Home
+  </button>
+</div>
+
+<!-- ═══════ LINKS PANEL ═══════ -->
+<div class="panel active" id="panel-links">
+  <div class="tile-grid links-grid">
+
+    <a class="tile" tabindex="10" href="https://www.youtube.com" style="--tile-accent: #f87171; --tile-glow: rgba(248,113,113,0.08);">
+      <div class="tile-icon" style="background: rgba(248,113,113,0.15); color: #f87171;">▶</div>
+      <div>
+        <div class="tile-title">YouTube</div>
+        <div class="tile-subtitle">Videos & Live TV</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="11" href="https://www.netflix.com" style="--tile-accent: #e50914; --tile-glow: rgba(229,9,20,0.08);">
+      <div class="tile-icon" style="background: rgba(229,9,20,0.15); color: #e50914;">N</div>
+      <div>
+        <div class="tile-title">Netflix</div>
+        <div class="tile-subtitle">Movies & Series</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="12" href="https://www.twitch.tv" style="--tile-accent: #a78bfa; --tile-glow: rgba(167,139,250,0.08);">
+      <div class="tile-icon" style="background: rgba(167,139,250,0.15); color: #a78bfa;">◈</div>
+      <div>
+        <div class="tile-title">Twitch</div>
+        <div class="tile-subtitle">Live Streams</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="13" href="https://www.primevideo.com" style="--tile-accent: #22d3ee; --tile-glow: rgba(34,211,238,0.08);">
+      <div class="tile-icon" style="background: rgba(34,211,238,0.15); color: #22d3ee;">▷</div>
+      <div>
+        <div class="tile-title">Prime Video</div>
+        <div class="tile-subtitle">Originals & Channels</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="14" href="https://open.spotify.com" style="--tile-accent: #34d399; --tile-glow: rgba(52,211,153,0.08);">
+      <div class="tile-icon" style="background: rgba(52,211,153,0.15); color: #34d399;">♫</div>
+      <div>
+        <div class="tile-title">Spotify</div>
+        <div class="tile-subtitle">Music & Podcasts</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="15" href="https://www.reddit.com" style="--tile-accent: #fb923c; --tile-glow: rgba(251,146,60,0.08);">
+      <div class="tile-icon" style="background: rgba(251,146,60,0.15); color: #fb923c;">⬡</div>
+      <div>
+        <div class="tile-title">Reddit</div>
+        <div class="tile-subtitle">Communities</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="16" href="https://news.google.com" style="--tile-accent: #4d8eff; --tile-glow: rgba(77,142,255,0.08);">
+      <div class="tile-icon" style="background: rgba(77,142,255,0.15); color: #4d8eff;">◉</div>
+      <div>
+        <div class="tile-title">News</div>
+        <div class="tile-subtitle">Google News</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="17" href="https://www.google.com" style="--tile-accent: #fbbf24; --tile-glow: rgba(251,191,36,0.08);">
+      <div class="tile-icon" style="background: rgba(251,191,36,0.15); color: #fbbf24;">G</div>
+      <div>
+        <div class="tile-title">Google</div>
+        <div class="tile-subtitle">Search</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="18" href="https://www.disneyplus.com" style="--tile-accent: #4d8eff; --tile-glow: rgba(77,142,255,0.08);">
+      <div class="tile-icon" style="background: rgba(13,37,87,0.5); color: #7eb8ff;">✦</div>
+      <div>
+        <div class="tile-title">Disney+</div>
+        <div class="tile-subtitle">Family & Marvel</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="19" href="https://github.com" style="--tile-accent: #e8e8f0; --tile-glow: rgba(232,232,240,0.05);">
+      <div class="tile-icon" style="background: rgba(232,232,240,0.1); color: #e8e8f0;">⌥</div>
+      <div>
+        <div class="tile-title">GitHub</div>
+        <div class="tile-subtitle">Code & Projects</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="20" href="https://calendar.google.com" style="--tile-accent: #34d399; --tile-glow: rgba(52,211,153,0.08);">
+      <div class="tile-icon" style="background: rgba(52,211,153,0.15); color: #34d399;">📅</div>
+      <div>
+        <div class="tile-title">Calendar</div>
+        <div class="tile-subtitle">Google Calendar</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="21" href="#" id="settingsTile" style="--tile-accent: #6e6e82; --tile-glow: rgba(110,110,130,0.08);">
+      <div class="tile-icon" style="background: rgba(110,110,130,0.15); color: #6e6e82;">⚙</div>
+      <div>
+        <div class="tile-title">Settings</div>
+        <div class="tile-subtitle">Edit Dashboard</div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ═══════ MEDIA PANEL ═══════ -->
+<div class="panel" id="panel-media">
+  <div class="tile-grid media-grid">
+
+    <div class="tile tile-wide" tabindex="30" style="--tile-accent: var(--accent-purple); --tile-glow: rgba(167,139,250,0.08);">
+      <div class="section-label">Now Playing</div>
+      <div class="now-playing">
+        <div class="album-art">♪</div>
+        <div class="track-info">
+          <div class="track-name" id="trackName">No Track Playing</div>
+          <div class="track-artist" id="trackArtist">—</div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="31" onclick="mediaCmd('prev')" style="--tile-accent: var(--accent-blue);">
+      <div class="tile-icon" style="background: rgba(77,142,255,0.15); color: var(--accent-blue);">⏮</div>
+      <div class="tile-title">Previous</div>
+    </div>
+
+    <div class="tile" tabindex="32" onclick="mediaCmd('next')" style="--tile-accent: var(--accent-blue);">
+      <div class="tile-icon" style="background: rgba(77,142,255,0.15); color: var(--accent-blue);">⏭</div>
+      <div class="tile-title">Next</div>
+    </div>
+
+    <div class="tile" tabindex="33" onclick="mediaCmd('play')" style="--tile-accent: var(--accent-green);">
+      <div class="tile-icon" style="background: rgba(52,211,153,0.15); color: var(--accent-green);">⏯</div>
+      <div>
+        <div class="tile-title" id="playBtn">Play</div>
+        <div class="tile-subtitle">Toggle playback</div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="34" onclick="mediaCmd('stop')" style="--tile-accent: var(--accent-red);">
+      <div class="tile-icon" style="background: rgba(248,113,113,0.15); color: var(--accent-red);">⏹</div>
+      <div>
+        <div class="tile-title">Stop</div>
+        <div class="tile-subtitle">Stop playback</div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="35" style="--tile-accent: var(--accent-yellow);">
+      <div class="section-label">Volume</div>
+      <div class="tile-title">Speaker</div>
+      <div class="slider-row">
+        <div class="slider-track"><div class="slider-fill" id="volFill" style="width:60%"></div></div>
+        <div class="slider-label" id="volLabel">60%</div>
+      </div>
+    </div>
+
+    <a class="tile" tabindex="36" href="https://www.youtube.com" style="--tile-accent: #f87171; --tile-glow: rgba(248,113,113,0.08);">
+      <div class="tile-icon" style="background: rgba(248,113,113,0.15); color: #f87171;">▶</div>
+      <div>
+        <div class="tile-title">YouTube</div>
+        <div class="tile-subtitle">Open</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="37" href="https://open.spotify.com" style="--tile-accent: #34d399;">
+      <div class="tile-icon" style="background: rgba(52,211,153,0.15); color: #34d399;">♫</div>
+      <div>
+        <div class="tile-title">Spotify</div>
+        <div class="tile-subtitle">Open</div>
+      </div>
+    </a>
+
+    <a class="tile" tabindex="38" href="https://www.netflix.com" style="--tile-accent: #e50914;">
+      <div class="tile-icon" style="background: rgba(229,9,20,0.15); color: #e50914;">N</div>
+      <div>
+        <div class="tile-title">Netflix</div>
+        <div class="tile-subtitle">Open</div>
+      </div>
+    </a>
+
+    <div class="tile" tabindex="39" style="--tile-accent: var(--accent-cyan);">
+      <div class="tile-icon" style="background: rgba(34,211,238,0.15); color: var(--accent-cyan);">📺</div>
+      <div>
+        <div class="tile-title">HDMI Input</div>
+        <div class="tile-subtitle">Switch source</div>
+      </div>
+    </div>
+
+    <div class="tile tile-wide" tabindex="40" style="--tile-accent: var(--accent-pink);">
+      <div class="section-label">Recently Watched</div>
+      <div style="display:flex; gap:14px; margin-top:8px;">
+        <div style="width:80px;height:50px;border-radius:8px;background:linear-gradient(135deg,#1a1a2e,#2a2a4a);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-dim);">Movie 1</div>
+        <div style="width:80px;height:50px;border-radius:8px;background:linear-gradient(135deg,#1a2e1a,#2a4a2a);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-dim);">Series 2</div>
+        <div style="width:80px;height:50px;border-radius:8px;background:linear-gradient(135deg,#2e1a1a,#4a2a2a);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-dim);">Movie 3</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ SMART HOME PANEL ═══════ -->
+<div class="panel" id="panel-home">
+  <div class="tile-grid home-grid">
+
+    <div class="tile" tabindex="50" onclick="toggleDevice(this)" data-on="true" style="--tile-accent: var(--accent-yellow); --tile-glow: rgba(251,191,36,0.08);">
+      <div class="tile-icon" style="background: rgba(251,191,36,0.15); color: var(--accent-yellow);">💡</div>
+      <div class="tile-title">Living Room</div>
+      <div class="toggle-row">
+        <div class="tile-subtitle device-status">On · 80%</div>
+        <div class="toggle-pill on"></div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="51" onclick="toggleDevice(this)" data-on="true" style="--tile-accent: var(--accent-yellow);">
+      <div class="tile-icon" style="background: rgba(251,191,36,0.15); color: var(--accent-yellow);">💡</div>
+      <div class="tile-title">Bedroom</div>
+      <div class="toggle-row">
+        <div class="tile-subtitle device-status">On · 45%</div>
+        <div class="toggle-pill on"></div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="52" onclick="toggleDevice(this)" data-on="false" style="--tile-accent: var(--accent-yellow);">
+      <div class="tile-icon" style="background: rgba(251,191,36,0.1); color: #6e6e82;">💡</div>
+      <div class="tile-title">Kitchen</div>
+      <div class="toggle-row">
+        <div class="tile-subtitle device-status">Off</div>
+        <div class="toggle-pill"></div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="53" onclick="toggleDevice(this)" data-on="false" style="--tile-accent: var(--accent-yellow);">
+      <div class="tile-icon" style="background: rgba(251,191,36,0.1); color: #6e6e82;">💡</div>
+      <div class="tile-title">Porch</div>
+      <div class="toggle-row">
+        <div class="tile-subtitle device-status">Off</div>
+        <div class="toggle-pill"></div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="54" style="--tile-accent: var(--accent-cyan);">
+      <div class="tile-icon" style="background: rgba(34,211,238,0.15); color: var(--accent-cyan);">❄</div>
+      <div class="tile-title">Thermostat</div>
+      <div class="slider-row">
+        <div class="slider-track"><div class="slider-fill" style="width:55%; background: var(--accent-cyan);"></div></div>
+        <div class="slider-label">22°C</div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="55" onclick="toggleDevice(this)" data-on="true" style="--tile-accent: var(--accent-green);">
+      <div class="tile-icon" style="background: rgba(52,211,153,0.15); color: var(--accent-green);">🔒</div>
+      <div class="tile-title">Front Door</div>
+      <div class="toggle-row">
+        <div class="tile-subtitle device-status">Locked</div>
+        <div class="toggle-pill on"></div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="56" style="--tile-accent: var(--accent-blue);">
+      <div class="tile-icon" style="background: rgba(77,142,255,0.15); color: var(--accent-blue);">📷</div>
+      <div class="tile-title">Cameras</div>
+      <div class="tile-subtitle">3 online</div>
+    </div>
+
+    <div class="tile" tabindex="57" onclick="toggleDevice(this)" data-on="false" style="--tile-accent: var(--accent-orange);">
+      <div class="tile-icon" style="background: rgba(251,146,60,0.1); color: #6e6e82;">🔌</div>
+      <div class="tile-title">Smart Plug</div>
+      <div class="toggle-row">
+        <div class="tile-subtitle device-status">Off</div>
+        <div class="toggle-pill"></div>
+      </div>
+    </div>
+
+    <div class="tile tile-wide" tabindex="58" style="--tile-accent: var(--accent-purple);">
+      <div class="section-label">Energy Today</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px;">
+        <div class="tile-title" style="font-size:32px;font-family:'JetBrains Mono',monospace;">4.2<span style="font-size:16px;color:var(--text-dim);"> kWh</span></div>
+        <div class="status-badge" style="background:rgba(52,211,153,0.15);color:var(--accent-green);">▼ 12% vs yesterday</div>
+      </div>
+    </div>
+
+    <div class="tile" tabindex="59" style="--tile-accent: var(--accent-pink);">
+      <div class="tile-icon" style="background: rgba(244,114,182,0.15); color: var(--accent-pink);">🎵</div>
+      <div class="tile-title">Speaker</div>
+      <div class="tile-subtitle">Living Room · Idle</div>
+    </div>
+
+    <div class="tile" tabindex="60" style="--tile-accent: var(--accent-green);">
+      <div class="tile-icon" style="background: rgba(52,211,153,0.15); color: var(--accent-green);">🌱</div>
+      <div class="tile-title">Garden</div>
+      <div class="tile-subtitle">Sprinkler off · 65% moist</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>
+    <span class="key-hint">◄ ►</span> Navigate
+    <span style="margin: 0 10px;">·</span>
+    <span class="key-hint">OK</span> Select
+    <span style="margin: 0 10px;">·</span>
+    <span class="key-hint">↑ ↓</span> Browse tiles
+  </span>
+</div>
+
+<script>
+  // ── CLOCK ──
+  function updateClock() {
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2,'0');
+    const m = now.getMinutes().toString().padStart(2,'0');
+    document.getElementById('clock').textContent = `${h}:${m}`;
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // ── TAB SWITCHING ──
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab));
+    tab.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        switchTab(tab);
+      }
+    });
+  });
+
+  function switchTab(tab) {
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const panelId = 'panel-' + tab.dataset.panel;
+    document.getElementById(panelId).classList.add('active');
+    // Focus first tile in new panel
+    const firstTile = document.getElementById(panelId).querySelector('.tile');
+    if (firstTile) setTimeout(() => firstTile.focus(), 50);
+  }
+
+  // ── SMART HOME TOGGLES ──
+  function toggleDevice(tile) {
+    const isOn = tile.dataset.on === 'true';
+    tile.dataset.on = isOn ? 'false' : 'true';
+    const pill = tile.querySelector('.toggle-pill');
+    const status = tile.querySelector('.device-status');
+    const icon = tile.querySelector('.tile-icon');
+
+    if (isOn) {
+      pill.classList.remove('on');
+      if (status) status.textContent = 'Off';
+      icon.style.color = '#6e6e82';
+    } else {
+      pill.classList.add('on');
+      if (status) status.textContent = 'On';
+      icon.style.color = '';
+    }
+  }
+
+  // ── MEDIA CONTROLS (stub — wire to your media server) ──
+  let playing = false;
+  function mediaCmd(cmd) {
+    const playBtn = document.getElementById('playBtn');
+    if (cmd === 'play') {
+      playing = !playing;
+      playBtn.textContent = playing ? 'Pause' : 'Play';
+    }
+    if (cmd === 'stop') {
+      playing = false;
+      playBtn.textContent = 'Play';
+    }
+    // TODO: Wire to your media server API (e.g., Kodi JSON-RPC, Plex, MQTT)
+    console.log('Media command:', cmd);
+  }
+
+  // ── D-PAD GRID NAVIGATION ──
+  // Intercept arrow keys to navigate within the active tile grid spatially
+  document.addEventListener('keydown', (e) => {
+    const active = document.activeElement;
+    if (!active || !active.classList.contains('tile')) return;
+
+    const panel = active.closest('.panel');
+    if (!panel) return;
+
+    const tiles = Array.from(panel.querySelectorAll('.tile'));
+    const idx = tiles.indexOf(active);
+    if (idx === -1) return;
+
+    const rects = tiles.map(t => t.getBoundingClientRect());
+    const cur = rects[idx];
+    const cx = cur.left + cur.width / 2;
+    const cy = cur.top + cur.height / 2;
+
+    let candidates = [];
+
+    if (e.key === 'ArrowRight') {
+      candidates = tiles.filter((t,i) => rects[i].left > cur.left + 10)
+        .sort((a,b) => {
+          const ra = rects[tiles.indexOf(a)], rb = rects[tiles.indexOf(b)];
+          return Math.abs(ra.top + ra.height/2 - cy) + (ra.left - cur.right) -
+                 (Math.abs(rb.top + rb.height/2 - cy) + (rb.left - cur.right));
+        });
+    } else if (e.key === 'ArrowLeft') {
+      candidates = tiles.filter((t,i) => rects[i].right < cur.right - 10)
+        .sort((a,b) => {
+          const ra = rects[tiles.indexOf(a)], rb = rects[tiles.indexOf(b)];
+          return Math.abs(ra.top + ra.height/2 - cy) + (cur.left - ra.right) -
+                 (Math.abs(rb.top + rb.height/2 - cy) + (cur.left - rb.right));
+        });
+    } else if (e.key === 'ArrowDown') {
+      candidates = tiles.filter((t,i) => rects[i].top > cur.top + 10)
+        .sort((a,b) => {
+          const ra = rects[tiles.indexOf(a)], rb = rects[tiles.indexOf(b)];
+          return Math.abs(ra.left + ra.width/2 - cx) + (ra.top - cur.bottom) -
+                 (Math.abs(rb.left + rb.width/2 - cx) + (rb.top - cur.bottom));
+        });
+    } else if (e.key === 'ArrowUp') {
+      candidates = tiles.filter((t,i) => rects[i].bottom < cur.bottom - 10)
+        .sort((a,b) => {
+          const ra = rects[tiles.indexOf(a)], rb = rects[tiles.indexOf(b)];
+          return Math.abs(ra.left + ra.width/2 - cx) + (cur.top - ra.bottom) -
+                 (Math.abs(rb.left + rb.width/2 - cx) + (cur.top - rb.bottom));
+        });
+    } else {
+      return; // not an arrow key
+    }
+
+    if (candidates.length > 0) {
+      e.preventDefault();
+      candidates[0].focus();
+    } else if (e.key === 'ArrowUp') {
+      // Move focus back to tab bar
+      e.preventDefault();
+      document.querySelector('.tab.active').focus();
+    }
+  });
+
+  // From tab bar, ArrowDown moves into the tile grid
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const activePanel = document.querySelector('.panel.active');
+        const firstTile = activePanel?.querySelector('.tile');
+        if (firstTile) firstTile.focus();
+      }
+    });
+  });
+</script>
+</body>
+</html>
